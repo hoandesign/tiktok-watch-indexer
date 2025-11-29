@@ -540,6 +540,12 @@ async function getStats() {
 async function analyzeSavedFrame(frameKey) {
   if (!db) await initDB();
   
+  // Check settings first to provide accurate error message
+  const settings = await chrome.storage.sync.get(['cloudVisionApiKey', 'enableAI']);
+  if (!settings.cloudVisionApiKey) {
+    return { success: false, error: 'Cloud Vision API key not configured' };
+  }
+  
   const transaction = db.transaction([STORES.FRAMES, STORES.INVERTED_INDEX], 'readwrite');
   const frameStore = transaction.objectStore(STORES.FRAMES);
   
@@ -550,18 +556,51 @@ async function analyzeSavedFrame(frameKey) {
     request.onerror = () => reject(request.error);
   });
   
-  if (!frame || !frame.blobData) {
+  if (!frame) {
     return { success: false, error: 'Frame not found' };
   }
   
-  // Check settings
-  const settings = await chrome.storage.sync.get(['cloudVisionApiKey']);
-  if (!settings.cloudVisionApiKey) {
-    return { success: false, error: 'Cloud Vision API key not configured' };
+  // Handle different blobData formats (for old frames that might be stored differently)
+  let blobData = null;
+  if (frame.blobData) {
+    try {
+      // Handle ArrayBuffer (most common case)
+      if (frame.blobData instanceof ArrayBuffer) {
+        blobData = frame.blobData;
+      } 
+      // Handle TypedArray views (Uint8Array, etc.)
+      else if (frame.blobData.buffer instanceof ArrayBuffer) {
+        blobData = frame.blobData.buffer;
+      }
+      // Handle array of numbers (old format or serialized)
+      else if (Array.isArray(frame.blobData)) {
+        blobData = new Uint8Array(frame.blobData).buffer;
+      }
+      // Handle objects with byteLength (serialized ArrayBuffer from messaging)
+      else if (typeof frame.blobData === 'object' && frame.blobData.byteLength !== undefined) {
+        // Try to reconstruct from array-like object
+        if (Array.isArray(frame.blobData) || (frame.blobData.length !== undefined && typeof frame.blobData.length === 'number')) {
+          blobData = new Uint8Array(frame.blobData).buffer;
+        } else {
+          // Last resort: try to convert object values to array
+          const values = Object.values(frame.blobData).filter(v => typeof v === 'number');
+          if (values.length > 0) {
+            blobData = new Uint8Array(values).buffer;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error processing blobData:', error);
+      return { success: false, error: 'Invalid frame data format' };
+    }
+  }
+  
+  if (!blobData) {
+    return { success: false, error: 'Frame image data not available' };
   }
   
   try {
-    const base64 = arrayBufferToBase64(frame.blobData);
+    const base64 = arrayBufferToBase64(blobData);
     const analysis = await analyzeImageWithCloudVision(base64, settings.cloudVisionApiKey);
     
     if (analysis) {
@@ -584,11 +623,15 @@ async function analyzeSavedFrame(frameKey) {
       
       return { success: true, analysis };
     } else {
-      return { success: false, error: 'Analysis failed' };
+      return { success: false, error: 'Analysis failed - API request returned no results' };
     }
   } catch (error) {
     console.error('Analysis failed:', error);
-    return { success: false, error: error.message };
+    // Provide more specific error messages
+    if (error.message && error.message.includes('API key')) {
+      return { success: false, error: 'Invalid API key or API error' };
+    }
+    return { success: false, error: error.message || 'Analysis failed' };
   }
 }
 
