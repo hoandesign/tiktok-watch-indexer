@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TikTok Watch Indexer - Settings</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    
+    .section {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    
+    .setting-item {
+      margin-bottom: 20px;
+    }
+    
+    .setting-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .setting-label-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .toggle-switch.active {
+      background: #667eea;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+    }
+    
+    .toggle-switch.active::after {
+      transform: translateX(24px);
+    }
+    
+    .setting-description {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    
+    .input-group {
+      margin-top: 8px;
+    }
+    
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .input-group input:focus {
+      border-color: #667eea;
+    }
+    
+    .input-group input[type="number"] {
+      width: 120px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+    
+    .btn-danger {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #c0392b;
+    }
+    
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+    
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+    
+    .status-message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 16px;
+      font-size: 14px;
+      display: none;
+    }
+    
+    .status-message.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+    
+    .status-message.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+    
+    .stats-display {
+      background: #f8f9fa;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+    
+    .stats-display div {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⚙️ TikTok Watch Indexer Settings</h1>
+    <p>Configure frame capture, indexing, and AI features</p>
+  </div>
+  
+  <div class="section">
+    <div class="section-title">Frame Capture</div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <span class="setting-label-text">Enable Frame Capture</span>
+        <div class="toggle-switch" id="enableFrameCapture"></div>
+      </div>
+      <div class="setting-description">
+        Capture visual snapshots from videos you view
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="input-group">
+        <label>Max Frames per Video</label>
+        <input type="number" id="frameCap" min="1" max="20" value="5">
+      </div>
+      <div class="setting-description">
+        Maximum number of frames to capture per video (1-20)
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="input-group">
+        <label>Frame Capture Interval (ms)</label>
+        <input type="number" id="frameInterval" min="1000" max="10000" value="2500">
+      </div>
+      <div class="setting-description">
+        Time between frame captures in milliseconds
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="input-group">
+        <label>WebP Quality (0.1 - 1.0)</label>
+        <input type="number" id="webpQuality" min="0.1" max="1.0" step="0.05" value="0.7">
+      </div>
+      <div class="setting-description">
+        Image compression quality (lower = smaller files, higher = better quality)
+      </div>
+    </div>
+  </div>
+  
+  <div class="section">
+    <div class="section-title">AI Features (Optional)</div>
+    
+    <div class="setting-item">
+      <div class="setting-label">
+        <span class="setting-label-text">Enable AI Features</span>
+        <div class="toggle-switch" id="enableAI"></div>
+      </div>
+      <div class="setting-description">
+        Enable advanced AI capabilities using Google's APIs
+      </div>
+    </div>
+    
+    <div id="aiSettingsContainer" style="display: none;">
+      <div class="setting-item">
+        <div class="input-group">
+          <label>Google Gemini API Key</label>
+          <input type="password" id="geminiApiKey" placeholder="Enter Gemini API key">
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="input-group">
+          <label>Google Cloud Vision API Key</label>
+          <input type="password" id="cloudVisionApiKey" placeholder="Enter Cloud Vision API key">
+        </div>
+        <div class="setting-description">
+          Required for auto-indexing images with visual recognition
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-label">
+          <span class="setting-label-text">Auto-Index Images with Cloud Vision</span>
+          <div class="toggle-switch" id="enableCloudVision"></div>
+        </div>
+        <div class="setting-description">
+          Automatically analyze captured frames for text and objects
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="section">
+    <div class="section-title">Data Management</div>
+    
+    <div class="stats-display" id="statsDisplay">
+      <div>Loading statistics...</div>
+    </div>
+    
+    <div class="button-group">
+      <button class="btn btn-secondary" id="exportBtn">Export Data</button>
+      <button class="btn btn-danger" id="clearBtn">Clear All Data</button>
+    </div>
+  </div>
+  
+  <div class="section">
+    <div class="button-group">
+      <button class="btn btn-primary" id="saveBtn">Save Settings</button>
+    </div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html>
+
